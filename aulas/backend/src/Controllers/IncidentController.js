@@ -2,7 +2,25 @@ const connection = require("../database/connection");
 
 module.exports = {
   async index(request, response) {
-    const incidents = await connection("incidents").select("*");
+    const { page = 1 } = request.query;
+
+    const [count] = await connection("incidents").count();
+
+    const incidents = await connection("incidents")
+      .join("ongs", "ongs.id", "=", "incidents.ong_id")
+      .limit(5)
+      .offset((page - 1) * 5)
+      .select([
+        "incidents.*",
+        "ongs.name",
+        "ongs.email",
+        "ongs.whatsapp",
+        "ongs.city",
+        "ongs.uf"
+      ]);
+
+    response.header("X-Total-Count", count["count(*)"]);
+
     return response.json(incidents);
   },
 
@@ -26,5 +44,14 @@ module.exports = {
       .where("id", id)
       .select("ong_id")
       .first(); // Buscando o incidente que tenha o mesmo id
+
+    if (incident.id != ong_id) {
+      return response.status(401).json({ error: "Operation not permitted" });
+    }
+    await connection("incidents")
+      .where("id", id)
+      .delete();
+
+    return response.status(204).send(); // Retornando 204 quando dá certo  e n tem nenhum retorno pra dar
   }
 };
