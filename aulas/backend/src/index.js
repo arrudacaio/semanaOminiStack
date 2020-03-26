@@ -1,8 +1,10 @@
 const express = require("express");
+const cours = require("cors");
 const routes = require("./routes"); // Importando routes
 
 const app = express();
 
+app.use(cours());
 app.use(express.json()); // Comunicando ao express que vá no corpo da minha requisição e conversa o JSON em um objeto JS
 
 app.use(routes);
