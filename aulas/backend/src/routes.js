@@ -1,15 +1,15 @@
 const express = require("express");
-const crypto = require("crypto");
 
-const connection = require("./database/connection"); // Importando a conexão com o dB.
+const OngController = require("./Controllers/OngController");
+const IncidentController = require("./Controllers/IncidentController");
 
 const routes = express.Router(); // Desacoplando o módulo de rotas do express em uma nova variável
 
-routes.post("/ongs", (req, res) => {
-  const { name, email, whatsapp, city, uf } = req.body;
-  const id = crypto.randomBytes(4).toString("HEX"); // Gerando o id de cada ong de maneira criptografada
+routes.get("/ongs", OngController.index);
+routes.post("/ongs", OngController.create);
 
-  return res.json();
-});
+routes.get("/incidents", IncidentController.index);
+routes.post("/incidents", IncidentController.create);
+routes.delete("/incidents/:id", IncidentController.delete);
 
 module.exports = routes; // Permitindo que outros arquivos possam importar esse arquivo
